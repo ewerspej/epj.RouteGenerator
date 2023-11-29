@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+  x:Class="RouteGeneratorSample.Cars.VolvoPage"
+  xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+  xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+  xmlns:cars="using:RouteGeneratorSample.Cars"
+  x:DataType="cars:VolvoViewModel">
+
+  <VerticalStackLayout
+    Padding="24"
+    Spacing="8"
+    VerticalOptions="Center"
+    HorizontalOptions="Center">
+    <Label Text="{Binding Model}" />
+    <Label Text="{Binding Year}" />
+    <Label Text="{Binding Price}" />
+    <Label Text="{Binding Owner, StringFormat='{}Current Owner: {0}'}" />
+    <Button Text="Home" Command="{Binding HomeCommand}" />
+  </VerticalStackLayout>
+
+</ContentPage>

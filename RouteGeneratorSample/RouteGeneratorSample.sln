@@ -1,0 +1,33 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.8.34316.72
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RouteGeneratorSample", "RouteGeneratorSample.csproj", "{A11A70DC-02F9-41AE-B67E-EDB8EF846C0F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "epj.RouteGenerator", "..\epj.RouteGenerator\epj.RouteGenerator.csproj", "{591C983B-747B-47F7-B905-C4C783697E8B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A11A70DC-02F9-41AE-B67E-EDB8EF846C0F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A11A70DC-02F9-41AE-B67E-EDB8EF846C0F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A11A70DC-02F9-41AE-B67E-EDB8EF846C0F}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{A11A70DC-02F9-41AE-B67E-EDB8EF846C0F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A11A70DC-02F9-41AE-B67E-EDB8EF846C0F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A11A70DC-02F9-41AE-B67E-EDB8EF846C0F}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{591C983B-747B-47F7-B905-C4C783697E8B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{591C983B-747B-47F7-B905-C4C783697E8B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{591C983B-747B-47F7-B905-C4C783697E8B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{591C983B-747B-47F7-B905-C4C783697E8B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {AF46BC83-D8EF-44AF-8E7F-F47A584E54F6}
+	EndGlobalSection
+EndGlobal
