@@ -1,9 +1,11 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using epj.RouteGenerator;
+using Microsoft.Extensions.Logging;
 using RouteGeneratorSample.Cars;
 using RouteGeneratorSample.Navigation;
 
 namespace RouteGeneratorSample
 {
+    [AutoRouteGeneration]
     public static class MauiProgram
     {
         public static MauiApp CreateMauiApp()

@@ -38,6 +38,11 @@
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'tizen'">6.5</SupportedOSPlatformVersion>
 	</PropertyGroup>
 
+  <!--<PropertyGroup>
+    <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+    <CompilerGeneratedFilesOutputPath>generated</CompilerGeneratedFilesOutputPath>
+  </PropertyGroup>-->
+
 	<ItemGroup>
 		<!-- App Icon -->
 		<MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#512BD4" />
@@ -64,7 +69,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\epj.RouteGenerator\epj.RouteGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="False" />
+	  <ProjectReference Include="..\epj.RouteGenerator\epj.RouteGenerator.csproj" OutputItemType="Analyzer" />
 	</ItemGroup>
 
 </Project>
