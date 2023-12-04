@@ -25,36 +25,32 @@ public class RouteGenerator : IIncrementalGenerator
     {
         var (compilation, classes) = compilationTuple;
 
-        var attributeName = typeof(AutoRouteGenerationAttribute).FullName!;
-
-        var attributeSymbol = compilation.GetTypeByMetadataName(attributeName);
+        var attributeFullName = typeof(AutoRouteGenerationAttribute).FullName!;
+        var attributeSymbol = compilation.GetTypeByMetadataName(attributeFullName);
 
         if (attributeSymbol is null)
         {
-            // Stop the generator if no such attribute has been found
+            // Stop the generator if no such attribute has been found (shouldn't happen as it's defined in the same assembly)
             return;
         }
 
-        var classesWithAttributeData = GetAllClasses(compilation.GlobalNamespace)
+        var classWithAttributeData = GetAllClasses(compilation.GlobalNamespace)
             .Select(t => new { Class = t, AttributeData = t.GetAttributes().FirstOrDefault(ad => ad?.AttributeClass is not null && ad.AttributeClass.Equals(attributeSymbol, SymbolEqualityComparer.Default)) })
-            .Where(t => t.AttributeData != null)
-            .ToList();
+            .First(t => t.AttributeData != null);
 
-        var classesWithAttribute = classesWithAttributeData.Select(t => t.Class).ToList();
-
-        if (!classesWithAttribute.Any())
+        if (classWithAttributeData?.Class is null)
         {
-            // Stop the generator if no classes with the attribute have been found
+            // Stop the generator if no class with the attribute has been found
             return;
         }
 
-        if (classesWithAttributeData.First().AttributeData.ConstructorArguments.FirstOrDefault().Value is not string suffix)
+        if (classWithAttributeData.AttributeData.ConstructorArguments.FirstOrDefault().Value is not string suffix)
         {
             // Stop the generator if the suffix is null
             return;
         }
 
-        var namespaceName = classesWithAttribute.First().ContainingNamespace.ToDisplayString();
+        var namespaceName = classWithAttributeData.Class.ContainingNamespace.ToDisplayString();
 
         var routeClassDeclarationSyntaxList = classes.Where(c => c.Identifier.Text.EndsWith(suffix)).ToList();
         var routeNameList = routeClassDeclarationSyntaxList.Select(pageClass => pageClass.Identifier.Text).ToList();
