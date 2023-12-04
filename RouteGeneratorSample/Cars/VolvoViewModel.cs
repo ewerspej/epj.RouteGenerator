@@ -7,7 +7,7 @@ namespace RouteGeneratorSample.Cars;
 [QueryProperty(nameof(Owner), nameof(Owner))]
 public partial class VolvoViewModel(INavigationService navigationService) : ObservableObject
 {
-    public IRelayCommand HomeCommand { get; } = new AsyncRelayCommand(async () => await navigationService.GoToAsync("///MainPage"));
+    public IRelayCommand HomeCommand { get; } = new AsyncRelayCommand(async () => await navigationService.GoToAsync($"///{Routes.MainPage}"));
 
     [ObservableProperty]
     private string _owner = string.Empty;

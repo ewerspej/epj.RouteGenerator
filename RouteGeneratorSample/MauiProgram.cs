@@ -25,6 +25,7 @@ namespace RouteGeneratorSample
 
             builder.Services.AddSingleton<INavigationService, NavigationService>();
             builder.Services.AddSingleton<MainPage>();
+            builder.Services.AddSingleton<MainViewModel>();
             builder.Services.AddTransient<AudiPage>();
             builder.Services.AddTransient<AudiViewModel>();
             builder.Services.AddTransient<VolvoPage>();
