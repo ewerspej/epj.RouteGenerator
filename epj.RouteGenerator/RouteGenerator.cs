@@ -44,9 +44,10 @@ public class RouteGenerator : IIncrementalGenerator
             return;
         }
 
-        if (classWithAttributeData.AttributeData.ConstructorArguments.FirstOrDefault().Value is not string suffix)
+        if (classWithAttributeData.AttributeData.ConstructorArguments.FirstOrDefault().Value is not string suffix || string.IsNullOrWhiteSpace(suffix))
         {
-            // Stop the generator if the suffix is null
+            // Stop the generator if the suffix is null or an empty string
+            context.ReportDiagnostic(Diagnostic.Create(new DiagnosticDescriptor("ARG001", "Error", $"The {nameof(AutoRouteGenerationAttribute)} suffix parameter is required and may not be null or empty", "Compilation", DiagnosticSeverity.Error, true), null));
             return;
         }
 
