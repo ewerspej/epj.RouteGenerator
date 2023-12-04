@@ -33,9 +33,12 @@ public class RouteGenerator : IIncrementalGenerator
             return;
         }
 
-        var classesWithAttribute = GetAllClasses(compilation.GlobalNamespace)
-            .Where(t => t.GetAttributes().Any(ad => ad?.AttributeClass is not null && ad.AttributeClass.Equals(attributeSymbol, SymbolEqualityComparer.Default)))
+        var classesWithAttributeData = GetAllClasses(compilation.GlobalNamespace)
+            .Select(t => new { Class = t, AttributeData = t.GetAttributes().FirstOrDefault(ad => ad?.AttributeClass is not null && ad.AttributeClass.Equals(attributeSymbol, SymbolEqualityComparer.Default)) })
+            .Where(t => t.AttributeData != null)
             .ToList();
+
+        var classesWithAttribute = classesWithAttributeData.Select(t => t.Class).ToList();
 
         if (!classesWithAttribute.Any())
         {
@@ -43,9 +46,15 @@ public class RouteGenerator : IIncrementalGenerator
             return;
         }
 
+        if (classesWithAttributeData.First().AttributeData.ConstructorArguments.FirstOrDefault().Value is not string suffix)
+        {
+            // Stop the generator if the suffix is null
+            return;
+        }
+
         var namespaceName = classesWithAttribute.First().ContainingNamespace.ToDisplayString();
 
-        var pageClasses = classes.Where(c => c.Identifier.Text.EndsWith("Page")).ToList();
+        var pageClasses = classes.Where(c => c.Identifier.Text.EndsWith(suffix)).ToList();
 
         var list = new List<string>();
 

@@ -5,7 +5,7 @@ using RouteGeneratorSample.Navigation;
 
 namespace RouteGeneratorSample
 {
-    [AutoRouteGeneration]
+    [AutoRouteGeneration("Page")]
     public static class MauiProgram
     {
         public static MauiApp CreateMauiApp()

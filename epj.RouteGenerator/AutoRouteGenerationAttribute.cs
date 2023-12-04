@@ -5,5 +5,10 @@ namespace epj.RouteGenerator;
 [AttributeUsage(AttributeTargets.Class, Inherited = false)]
 public class AutoRouteGenerationAttribute : Attribute
 {
-    // nothing to do here at the moment
+    public string Suffix { get; }
+
+    public AutoRouteGenerationAttribute(string suffix)
+    {
+        Suffix = suffix;
+    }
 }
