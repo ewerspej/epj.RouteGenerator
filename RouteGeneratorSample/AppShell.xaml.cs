@@ -8,8 +8,8 @@ namespace RouteGeneratorSample
         {
             InitializeComponent();
 
-            Routing.RegisterRoute("AudiPage", typeof(AudiPage));
-            Routing.RegisterRoute("VolvoPage", typeof(VolvoPage));
+            Routing.RegisterRoute(Routes.AudiPage, typeof(AudiPage));
+            Routing.RegisterRoute(Routes.VolvoPage, typeof(VolvoPage));
         }
     }
 }
