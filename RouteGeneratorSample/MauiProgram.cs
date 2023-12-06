@@ -1,5 +1,4 @@
 ﻿using epj.RouteGenerator;
-using Microsoft.Extensions.Logging;
 using RouteGeneratorSample.Cars;
 using RouteGeneratorSample.Navigation;
 
@@ -18,10 +17,6 @@ namespace RouteGeneratorSample
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
                     fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
                 });
-
-#if DEBUG
-            builder.Logging.AddDebug();
-#endif
 
             builder.Services.AddSingleton<INavigationService, NavigationService>();
             builder.Services.AddSingleton<MainPage>();
