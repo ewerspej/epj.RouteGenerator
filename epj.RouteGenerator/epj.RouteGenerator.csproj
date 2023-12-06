@@ -7,6 +7,12 @@
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <IncludeBuildOutput>false</IncludeBuildOutput>
     <PackageId>epj.RouteGenerator</PackageId>
+    <Title>Route Generator for .NET apps</Title>
+    <Version>1.0.0-alpha</Version>
+    <Authors>ewerspej</Authors>
+    <Description>Automatically generates route names for navigation based on a class name convention that can be specified using the [AutoRouteGeneration("Suffix")] attribute</Description>
+    <PackageProjectUrl>https://github.com/ewerspej/epj.RouteGenerator</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/ewerspej/epj.RouteGenerator</RepositoryUrl>
   </PropertyGroup>
 
   <ItemGroup>
