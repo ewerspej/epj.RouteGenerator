@@ -5,6 +5,10 @@ using RouteGeneratorSample.Navigation;
 namespace RouteGeneratorSample
 {
     [AutoRouteGeneration("Page")]
+    [ExtraRoute("SomeOtherRoute")]
+    [ExtraRoute("SomeFaulty!Route")]
+    [ExtraRoute("YetAnotherRoute")]
+    [ExtraRoute("YetAnotherRoute")]
     public static class MauiProgram
     {
         public static MauiApp CreateMauiApp()

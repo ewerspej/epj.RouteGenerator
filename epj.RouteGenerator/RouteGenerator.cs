@@ -3,12 +3,15 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace epj.RouteGenerator;
 
 [Generator]
 public class RouteGenerator : IIncrementalGenerator
 {
+    private readonly Regex _classNameRegex = new(@"^[a-zA-Z_][a-zA-Z0-9_]*$");
+
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
         var syntaxProvider = context.SyntaxProvider.CreateSyntaxProvider(
@@ -25,50 +28,117 @@ public class RouteGenerator : IIncrementalGenerator
     {
         var (compilation, classes) = compilationTuple;
 
-        var attributeFullName = typeof(AutoRouteGenerationAttribute).FullName!;
-        var attributeSymbol = compilation.GetTypeByMetadataName(attributeFullName);
+        var attributeAutoGenFullName = typeof(AutoRouteGenerationAttribute).FullName!;
+        var attributeAutoGenSymbol = compilation.GetTypeByMetadataName(attributeAutoGenFullName);
 
-        if (attributeSymbol is null)
+        if (attributeAutoGenSymbol is null)
         {
             // Stop the generator if no such attribute has been found (shouldn't happen as it's defined in the same assembly)
             return;
         }
 
-        var classWithAttributeData = GetAllClasses(compilation.GlobalNamespace)
-            .Select(t => new { Class = t, AttributeData = t.GetAttributes().FirstOrDefault(ad => ad?.AttributeClass is not null && ad.AttributeClass.Equals(attributeSymbol, SymbolEqualityComparer.Default)) })
+        var classWithAutoGenAttributeData = GetAllClasses(compilation.GlobalNamespace)
+            .Select(t => new { Class = t, AttributeData = t.GetAttributes().FirstOrDefault(ad => ad?.AttributeClass is not null && ad.AttributeClass.Equals(attributeAutoGenSymbol, SymbolEqualityComparer.Default)) })
             .First(t => t.AttributeData != null);
 
-        if (classWithAttributeData?.Class is null)
+        if (classWithAutoGenAttributeData?.Class is null)
         {
             // Stop the generator if no class with the attribute has been found
             return;
         }
 
-        if (classWithAttributeData.AttributeData.ConstructorArguments.FirstOrDefault().Value is not string suffix || string.IsNullOrWhiteSpace(suffix))
+        if (classWithAutoGenAttributeData.AttributeData.ConstructorArguments.FirstOrDefault().Value is not string suffix || string.IsNullOrWhiteSpace(suffix))
         {
             // Stop the generator if the suffix is null or an empty string
-            context.ReportDiagnostic(Diagnostic.Create(new DiagnosticDescriptor("ARG001", "Error", $"The {nameof(AutoRouteGenerationAttribute)} suffix parameter is required and may not be null or empty", "Compilation", DiagnosticSeverity.Error, true), null));
+            context.ReportDiagnostic(Diagnostic.Create(new DiagnosticDescriptor("ARG001", "Error", $"The {nameof(AutoRouteGenerationAttribute)} suffix parameter is required and may not be null or empty and the class name must be valid", "Compilation", DiagnosticSeverity.Error, true), null));
             return;
         }
 
-        var namespaceName = classWithAttributeData.Class.ContainingNamespace.ToDisplayString();
+        var namespaceName = classWithAutoGenAttributeData.Class.ContainingNamespace.ToDisplayString();
 
         var routeClassDeclarationSyntaxList = classes.Where(c => c.Identifier.Text.EndsWith(suffix)).ToList();
         var routeNameList = routeClassDeclarationSyntaxList.Select(pageClass => pageClass.Identifier.Text).ToList();
 
+        AddExtraRoutes(context, compilation, routeNameList);
+
+        var source = BuildSource(routeNameList, namespaceName);
+
+        context.AddSource("Routes.g.cs", source);
+    }
+
+    private void AddExtraRoutes(SourceProductionContext context, Compilation compilation, ICollection<string> routeNameList)
+    {
+        var attributeExtraRouteFullName = typeof(ExtraRouteAttribute).FullName!;
+        var attributeExtraRouteSymbol = compilation.GetTypeByMetadataName(attributeExtraRouteFullName);
+
+        if (attributeExtraRouteSymbol is null)
+        {
+            return;
+        }
+
+        var classesWithExtraRouteAttributeData = GetAllClasses(compilation.GlobalNamespace)
+            .Select(t => new
+            {
+                Class = t,
+                AttributeData = t.GetAttributes().Where(ad =>
+                    ad?.AttributeClass is not null &&
+                    ad.AttributeClass.Equals(attributeExtraRouteSymbol, SymbolEqualityComparer.Default))
+            })
+            .Where(t => t.AttributeData.Any())
+            .ToList();
+
+        if (!classesWithExtraRouteAttributeData.Any())
+        {
+            return;
+        }
+
+        // Add all extra routes to the routeNameList
+        foreach (var attributeData in classesWithExtraRouteAttributeData.SelectMany(classWithExtraRouteAttributeData => classWithExtraRouteAttributeData.AttributeData))
+        {
+            if (attributeData.ConstructorArguments.FirstOrDefault().Value is not string extraRoute ||
+                string.IsNullOrWhiteSpace(extraRoute))
+            {
+                continue;
+            }
+
+            //make sure route is valid and doesn't exist in routeNameList yet
+            if (!_classNameRegex.IsMatch(extraRoute))
+            {
+                context.ReportDiagnostic(Diagnostic.Create(
+                    new DiagnosticDescriptor("EXR001", "Error",
+                        $"The {nameof(ExtraRouteAttribute)} route parameter must be a valid route name, ignoring invalid route '{extraRoute}'",
+                        "Compilation", DiagnosticSeverity.Warning, true), null));
+                continue;
+            }
+
+            if (routeNameList.Contains(extraRoute))
+            {
+                context.ReportDiagnostic(Diagnostic.Create(
+                    new DiagnosticDescriptor("EXR002", "Error",
+                        $"The {nameof(ExtraRouteAttribute)} route parameter must be unique, ignoring duplicate '{extraRoute}'",
+                        "Compilation", DiagnosticSeverity.Warning, true), null));
+                continue;
+            }
+
+            routeNameList.Add(extraRoute);
+        }
+    }
+
+    private static string BuildSource(IReadOnlyCollection<string> routeNameList, string namespaceName)
+    {
         var routeClassDeclarationStrings = routeNameList.Select(page => $"public const string {page} = \"{page}\";");
         var routeClassDeclarationsString = string.Join("\n    ", routeClassDeclarationStrings);
 
         var source = $$"""
                        // <auto-generated/>
                        using System.Collections.ObjectModel;
-                       
+
                        namespace {{namespaceName}};
 
                        public static partial class Routes
                        {
                            {{routeClassDeclarationsString}}
-
+                       
                            private static List<string> allRoutes = new()
                            {
                                {{string.Join(",\n        ", routeNameList)}}
@@ -77,8 +147,7 @@ public class RouteGenerator : IIncrementalGenerator
                            public static ReadOnlyCollection<string> AllRoutes => allRoutes.AsReadOnly();
                        }
                        """;
-
-        context.AddSource("Routes.g.cs", source);
+        return source;
     }
 
     // Helper method to get all classes in a namespace
