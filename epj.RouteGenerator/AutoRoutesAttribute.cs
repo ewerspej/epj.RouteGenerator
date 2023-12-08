@@ -3,11 +3,11 @@
 namespace epj.RouteGenerator;
 
 [AttributeUsage(AttributeTargets.Class, Inherited = false)]
-public class AutoRouteGenerationAttribute : Attribute
+public class AutoRoutesAttribute : Attribute
 {
     public string Suffix { get; }
 
-    public AutoRouteGenerationAttribute(string suffix)
+    public AutoRoutesAttribute(string suffix)
     {
         Suffix = suffix;
     }

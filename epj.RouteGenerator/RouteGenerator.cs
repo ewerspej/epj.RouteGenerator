@@ -28,7 +28,7 @@ public class RouteGenerator : IIncrementalGenerator
     {
         var (compilation, classes) = compilationTuple;
 
-        var attributeAutoGenFullName = typeof(AutoRouteGenerationAttribute).FullName!;
+        var attributeAutoGenFullName = typeof(AutoRoutesAttribute).FullName!;
         var attributeAutoGenSymbol = compilation.GetTypeByMetadataName(attributeAutoGenFullName);
 
         if (attributeAutoGenSymbol is null)
@@ -50,7 +50,7 @@ public class RouteGenerator : IIncrementalGenerator
         if (classWithAutoGenAttributeData.AttributeData.ConstructorArguments.FirstOrDefault().Value is not string suffix || string.IsNullOrWhiteSpace(suffix))
         {
             // Stop the generator if the suffix is null or an empty string
-            context.ReportDiagnostic(Diagnostic.Create(new DiagnosticDescriptor("ARG001", "Error", $"The {nameof(AutoRouteGenerationAttribute)} suffix parameter is required and may not be null or empty and the class name must be valid", "Compilation", DiagnosticSeverity.Error, true), null));
+            context.ReportDiagnostic(Diagnostic.Create(new DiagnosticDescriptor("ARG001", "Error", $"The {nameof(AutoRoutesAttribute)} suffix parameter is required and may not be null or empty and the class name must be valid", "Compilation", DiagnosticSeverity.Error, true), null));
             return;
         }
 
@@ -162,7 +162,7 @@ public class RouteGenerator : IIncrementalGenerator
                     yield return childClass;
                 }
             }
-            else if (member is INamedTypeSymbol classSymbol && classSymbol.TypeKind == TypeKind.Class)
+            else if (member is INamedTypeSymbol { TypeKind: TypeKind.Class } classSymbol)
             {
                 yield return classSymbol;
             }

@@ -4,7 +4,7 @@ using RouteGeneratorSample.Navigation;
 
 namespace RouteGeneratorSample
 {
-    [AutoRouteGeneration("Page")]
+    [AutoRoutes("Page")]
     [ExtraRoute("SomeOtherRoute")]
     [ExtraRoute("SomeFaulty!Route")]
     [ExtraRoute("YetAnotherRoute")]

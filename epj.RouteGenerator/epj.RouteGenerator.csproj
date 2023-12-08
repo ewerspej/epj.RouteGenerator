@@ -10,14 +10,30 @@
     <Title>Route Generator for .NET apps</Title>
     <Version>1.0.0-alpha</Version>
     <Authors>ewerspej</Authors>
-    <Description>Automatically generates route names for navigation based on a class name convention that can be specified using the [AutoRouteGeneration("Suffix")] attribute</Description>
+    <Description>Automatically generates route names for navigation based on a class name convention for .NET applications</Description>
     <PackageProjectUrl>https://github.com/ewerspej/epj.RouteGenerator</PackageProjectUrl>
     <RepositoryUrl>https://github.com/ewerspej/epj.RouteGenerator</RepositoryUrl>
+    <PackageTags>dotnet;maui;xamarin;forms;shell;navigation;route;routes;page;pages;routing;generator;</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageIcon>epj_icon.png</PackageIcon>
   </PropertyGroup>
 
   <ItemGroup>
     <None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
     <None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="lib/$(TargetFramework)" Visible="false" />
+    <None Include="..\icon\epj_icon.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Include="..\LICENSE">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Include="..\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
   </ItemGroup>
 
   <ItemGroup>
