@@ -1,6 +1,8 @@
 # epj.RouteGenerator
 
-TODO: add nuget and license paths after uploading package to nuget.org
+![License](https://img.shields.io/github/license/ewerspej/epj.RouteGenerator)
+[![Nuget](https://img.shields.io/nuget/v/epj.RouteGenerator)](https://www.nuget.org/packages/epj.RouteGenerator/)
+
 
 Tired of manually specifying route identifiers and fixing typos in the route-based navigation of your .NET app? This source generator will take away that pain.
 
