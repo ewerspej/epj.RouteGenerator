@@ -22,7 +22,7 @@
   <ItemGroup>
     <None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
     <None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="lib/$(TargetFramework)" Visible="false" />
-    <None Include="..\icon\epj_icon.png">
+    <None Include="..\..\..\icons\epj_icon.png">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>
