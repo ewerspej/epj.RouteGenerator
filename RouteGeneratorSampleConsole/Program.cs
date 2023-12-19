@@ -1,0 +1,3 @@
+﻿using RouteGeneratorSampleConsole;
+
+Main.PrintRoutes();
