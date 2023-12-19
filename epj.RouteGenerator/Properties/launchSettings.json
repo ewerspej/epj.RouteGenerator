@@ -1,0 +1,11 @@
+{
+  "profiles": {
+    "epj.RouteGenerator": {
+      "commandName": "Project"
+    },
+    "epj.RouteGenerator Debug": {
+      "commandName": "DebugRoslynComponent",
+      "targetProject": "..\\RouteGeneratorSampleConsole\\RouteGeneratorSampleConsole.csproj"
+    }
+  }
+}
