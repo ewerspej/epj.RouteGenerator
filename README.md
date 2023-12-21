@@ -129,4 +129,9 @@ namespace RouteGeneratorSample
 }
 ```
 
+# Future Ideas
 
+- Platform-specific layer(s), e.g. epj.RouteGenerator.MAUI
+  - Automatic route registration
+  - Automatic registration of Pages and ViewModels as services
+  - Generation of route-specific extensions or methods (e.g. `Shell.Current.GoToMyAwesomePage(params)`)
