@@ -78,7 +78,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\epj.RouteGenerator\epj.RouteGenerator.csproj" OutputItemType="Analyzer" />
+	  <ProjectReference Include="..\epj.RouteGenerator\epj.RouteGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
 	</ItemGroup>
 
 </Project>
