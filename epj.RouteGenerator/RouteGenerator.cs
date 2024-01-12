@@ -21,6 +21,14 @@ public class RouteGenerator : IIncrementalGenerator
 
         var compilation = context.CompilationProvider.Combine(syntaxProvider.Collect());
 
+        context.RegisterPostInitializationOutput((ctx) => ctx.AddSource(
+            "AutoRoutesAttribute",
+            BuildAutoRoutesAttribute()));
+
+        context.RegisterPostInitializationOutput((ctx) => ctx.AddSource(
+            "ExtraRouteAttribute",
+            BuildExtraRouteAttribute()));
+
         context.RegisterSourceOutput(compilation, Execute);
     }
 
@@ -28,7 +36,7 @@ public class RouteGenerator : IIncrementalGenerator
     {
         var (compilation, classes) = compilationTuple;
 
-        var attributeAutoGenFullName = typeof(AutoRoutesAttribute).FullName!;
+        var attributeAutoGenFullName = "epj.RouteGenerator.AutoRoutesAttribute";
         var attributeAutoGenSymbol = compilation.GetTypeByMetadataName(attributeAutoGenFullName);
 
         if (attributeAutoGenSymbol is null)
@@ -50,7 +58,7 @@ public class RouteGenerator : IIncrementalGenerator
         if (classWithAutoGenAttributeData.AttributeData.ConstructorArguments.FirstOrDefault().Value is not string suffix || string.IsNullOrWhiteSpace(suffix))
         {
             // Stop the generator if the suffix is null or an empty string
-            context.ReportDiagnostic(Diagnostic.Create(new DiagnosticDescriptor("ARG001", "Error", $"The {nameof(AutoRoutesAttribute)} suffix parameter is required and may not be null or empty and the class name must be valid", "Compilation", DiagnosticSeverity.Error, true), null));
+            context.ReportDiagnostic(Diagnostic.Create(new DiagnosticDescriptor("ARG001", "Error", $"The {"AutoRoutesAttribute"} suffix parameter is required and may not be null or empty and the class name must be valid", "Compilation", DiagnosticSeverity.Error, true), null));
             return;
         }
 
@@ -68,7 +76,7 @@ public class RouteGenerator : IIncrementalGenerator
 
     private void AddExtraRoutes(SourceProductionContext context, Compilation compilation, ICollection<string> routeNameList)
     {
-        var attributeExtraRouteFullName = typeof(ExtraRouteAttribute).FullName!;
+        var attributeExtraRouteFullName = "epj.RouteGenerator.ExtraRouteAttribute";
         var attributeExtraRouteSymbol = compilation.GetTypeByMetadataName(attributeExtraRouteFullName);
 
         if (attributeExtraRouteSymbol is null)
@@ -106,7 +114,7 @@ public class RouteGenerator : IIncrementalGenerator
             {
                 context.ReportDiagnostic(Diagnostic.Create(
                     new DiagnosticDescriptor("EXR001", "Error",
-                        $"The {nameof(ExtraRouteAttribute)} route parameter must be a valid route name, ignoring invalid route '{extraRoute}'",
+                        $"The {"ExtraRouteAttribute"} route parameter must be a valid route name, ignoring invalid route '{extraRoute}'",
                         "Compilation", DiagnosticSeverity.Warning, true), null));
                 continue;
             }
@@ -115,7 +123,7 @@ public class RouteGenerator : IIncrementalGenerator
             {
                 context.ReportDiagnostic(Diagnostic.Create(
                     new DiagnosticDescriptor("EXR002", "Error",
-                        $"The {nameof(ExtraRouteAttribute)} route parameter must be unique, ignoring duplicate '{extraRoute}'",
+                        $"The {"ExtraRouteAttribute"} route parameter must be unique, ignoring duplicate '{extraRoute}'",
                         "Compilation", DiagnosticSeverity.Warning, true), null));
                 continue;
             }
@@ -168,5 +176,49 @@ public class RouteGenerator : IIncrementalGenerator
                 yield return classSymbol;
             }
         }
+    }
+
+    private static string BuildAutoRoutesAttribute()
+    {
+        var source = $$"""
+                       using System;
+
+                       namespace epj.RouteGenerator;
+
+                       [AttributeUsage(AttributeTargets.Class, Inherited = false)]
+                       public class AutoRoutesAttribute : Attribute
+                       {
+                           public string Suffix { get; }
+                       
+                           public AutoRoutesAttribute(string suffix)
+                           {
+                               Suffix = suffix;
+                           }
+                       }
+                       """;
+
+        return source;
+    }
+
+    private static string BuildExtraRouteAttribute()
+    {
+        var source = $$"""
+                       using System;
+                       
+                       namespace epj.RouteGenerator;
+                       
+                       [AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = true)]
+                       public class ExtraRouteAttribute : Attribute
+                       {
+                           public string Route { get; }
+                       
+                           public ExtraRouteAttribute(string route)
+                           {
+                               Route = route;
+                           }
+                       } 
+                       """;
+
+        return source;
     }
 }

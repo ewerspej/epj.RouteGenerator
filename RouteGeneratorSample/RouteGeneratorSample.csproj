@@ -38,9 +38,14 @@
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'tizen'">6.5</SupportedOSPlatformVersion>
 	</PropertyGroup>
 
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net8.0-android|AnyCPU'">
+	<!--<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net8.0-android|AnyCPU'">
 	  <RunAOTCompilation>False</RunAOTCompilation>
-	</PropertyGroup>
+	</PropertyGroup>-->
+
+  <!--<PropertyGroup>
+    --><!--<RunAOTCompilation>true</RunAOTCompilation>--><!--
+    <PublishAot>true</PublishAot>
+  </PropertyGroup>-->
 
   <!--<PropertyGroup>
     <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
