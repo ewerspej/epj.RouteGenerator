@@ -10,7 +10,7 @@ namespace epj.RouteGenerator;
 [Generator]
 public class RouteGenerator : IIncrementalGenerator
 {
-    private readonly Regex _classNameRegex = new(@"^[a-zA-Z_][a-zA-Z0-9_]*$");
+    private readonly Regex _classNameRegex = new(Constants.ClassNameRegex);
 
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
@@ -22,11 +22,11 @@ public class RouteGenerator : IIncrementalGenerator
         var compilation = context.CompilationProvider.Combine(syntaxProvider.Collect());
 
         context.RegisterPostInitializationOutput((ctx) => ctx.AddSource(
-            "AutoRoutesAttribute",
+            Constants.AutoRoutesAttribute,
             BuildAutoRoutesAttribute()));
 
         context.RegisterPostInitializationOutput((ctx) => ctx.AddSource(
-            "ExtraRouteAttribute",
+            Constants.ExtraRouteAttribute,
             BuildExtraRouteAttribute()));
 
         context.RegisterSourceOutput(compilation, Execute);
@@ -36,8 +36,7 @@ public class RouteGenerator : IIncrementalGenerator
     {
         var (compilation, classes) = compilationTuple;
 
-        var attributeAutoGenFullName = "epj.RouteGenerator.AutoRoutesAttribute";
-        var attributeAutoGenSymbol = compilation.GetTypeByMetadataName(attributeAutoGenFullName);
+        var attributeAutoGenSymbol = compilation.GetTypeByMetadataName(Constants.AutoRoutesFullName);
 
         if (attributeAutoGenSymbol is null)
         {
@@ -46,7 +45,13 @@ public class RouteGenerator : IIncrementalGenerator
         }
 
         var classWithAutoGenAttributeData = GetAllClasses(compilation.GlobalNamespace)
-            .Select(t => new { Class = t, AttributeData = t.GetAttributes().FirstOrDefault(ad => ad?.AttributeClass is not null && ad.AttributeClass.Equals(attributeAutoGenSymbol, SymbolEqualityComparer.Default)) })
+            .Select(t => new
+            {
+                Class = t,
+                AttributeData = t
+                    .GetAttributes()
+                    .FirstOrDefault(ad => ad?.AttributeClass is not null && ad.AttributeClass.Equals(attributeAutoGenSymbol, SymbolEqualityComparer.Default))
+            })
             .First(t => t.AttributeData != null);
 
         if (classWithAutoGenAttributeData?.Class is null)
@@ -58,7 +63,16 @@ public class RouteGenerator : IIncrementalGenerator
         if (classWithAutoGenAttributeData.AttributeData.ConstructorArguments.FirstOrDefault().Value is not string suffix || string.IsNullOrWhiteSpace(suffix))
         {
             // Stop the generator if the suffix is null or an empty string
-            context.ReportDiagnostic(Diagnostic.Create(new DiagnosticDescriptor("ARG001", "Error", $"The {"AutoRoutesAttribute"} suffix parameter is required and may not be null or empty and the class name must be valid", "Compilation", DiagnosticSeverity.Error, true), null));
+            context.ReportDiagnostic(
+                Diagnostic.Create(
+                    new DiagnosticDescriptor(
+                        Constants.ARG001,
+                        Constants.Error,
+                        $"The {Constants.AutoRoutesAttribute} suffix parameter is required and may not be null or empty and the class name must be valid",
+                        Constants.ErrorCategoryCompilation, DiagnosticSeverity.Error,
+                        true),
+                    null));
+
             return;
         }
 
@@ -71,13 +85,12 @@ public class RouteGenerator : IIncrementalGenerator
 
         var source = BuildSource(routeNameList, namespaceName);
 
-        context.AddSource("Routes.g.cs", source);
+        context.AddSource(Constants.RoutesGenFileName, source);
     }
 
     private void AddExtraRoutes(SourceProductionContext context, Compilation compilation, ICollection<string> routeNameList)
     {
-        var attributeExtraRouteFullName = "epj.RouteGenerator.ExtraRouteAttribute";
-        var attributeExtraRouteSymbol = compilation.GetTypeByMetadataName(attributeExtraRouteFullName);
+        var attributeExtraRouteSymbol = compilation.GetTypeByMetadataName(Constants.ExtraRouteFullName);
 
         if (attributeExtraRouteSymbol is null)
         {
@@ -103,8 +116,7 @@ public class RouteGenerator : IIncrementalGenerator
         // Add all extra routes to the routeNameList
         foreach (var attributeData in classesWithExtraRouteAttributeData.SelectMany(classWithExtraRouteAttributeData => classWithExtraRouteAttributeData.AttributeData))
         {
-            if (attributeData.ConstructorArguments.FirstOrDefault().Value is not string extraRoute ||
-                string.IsNullOrWhiteSpace(extraRoute))
+            if (attributeData.ConstructorArguments.FirstOrDefault().Value is not string extraRoute || string.IsNullOrWhiteSpace(extraRoute))
             {
                 continue;
             }
@@ -113,18 +125,30 @@ public class RouteGenerator : IIncrementalGenerator
             if (!_classNameRegex.IsMatch(extraRoute))
             {
                 context.ReportDiagnostic(Diagnostic.Create(
-                    new DiagnosticDescriptor("EXR001", "Error",
-                        $"The {"ExtraRouteAttribute"} route parameter must be a valid route name, ignoring invalid route '{extraRoute}'",
-                        "Compilation", DiagnosticSeverity.Warning, true), null));
+                    new DiagnosticDescriptor(
+                        Constants.EXR001,
+                        Constants.Error,
+                        $"The {Constants.ExtraRouteAttribute} route parameter must be a valid route name, ignoring invalid route '{extraRoute}'",
+                        Constants.ErrorCategoryCompilation,
+                        DiagnosticSeverity.Warning,
+                        true),
+                    null));
+
                 continue;
             }
 
             if (routeNameList.Contains(extraRoute))
             {
                 context.ReportDiagnostic(Diagnostic.Create(
-                    new DiagnosticDescriptor("EXR002", "Error",
-                        $"The {"ExtraRouteAttribute"} route parameter must be unique, ignoring duplicate '{extraRoute}'",
-                        "Compilation", DiagnosticSeverity.Warning, true), null));
+                    new DiagnosticDescriptor(
+                        Constants.EXR002,
+                        Constants.Error,
+                        $"The {Constants.ExtraRouteAttribute} route parameter must be unique, ignoring duplicate '{extraRoute}'",
+                        Constants.ErrorCategoryCompilation,
+                        DiagnosticSeverity.Warning,
+                        true),
+                    null));
+
                 continue;
             }
 
@@ -180,45 +204,41 @@ public class RouteGenerator : IIncrementalGenerator
 
     private static string BuildAutoRoutesAttribute()
     {
-        var source = $$"""
-                       using System;
+        return """
+               using System;
 
-                       namespace epj.RouteGenerator;
+               namespace epj.RouteGenerator;
 
-                       [AttributeUsage(AttributeTargets.Class, Inherited = false)]
-                       public class AutoRoutesAttribute : Attribute
-                       {
-                           public string Suffix { get; }
-                       
-                           public AutoRoutesAttribute(string suffix)
-                           {
-                               Suffix = suffix;
-                           }
-                       }
-                       """;
-
-        return source;
+               [AttributeUsage(AttributeTargets.Class, Inherited = false)]
+               public class AutoRoutesAttribute : Attribute
+               {
+                   public string Suffix { get; }
+               
+                   public AutoRoutesAttribute(string suffix)
+                   {
+                       Suffix = suffix;
+                   }
+               }
+               """;
     }
 
     private static string BuildExtraRouteAttribute()
     {
-        var source = $$"""
-                       using System;
-                       
-                       namespace epj.RouteGenerator;
-                       
-                       [AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = true)]
-                       public class ExtraRouteAttribute : Attribute
-                       {
-                           public string Route { get; }
-                       
-                           public ExtraRouteAttribute(string route)
-                           {
-                               Route = route;
-                           }
-                       } 
-                       """;
-
-        return source;
+        return """
+               using System;
+               
+               namespace epj.RouteGenerator;
+               
+               [AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = true)]
+               public class ExtraRouteAttribute : Attribute
+               {
+                   public string Route { get; }
+               
+                   public ExtraRouteAttribute(string route)
+                   {
+                       Route = route;
+                   }
+               } 
+               """;
     }
 }
