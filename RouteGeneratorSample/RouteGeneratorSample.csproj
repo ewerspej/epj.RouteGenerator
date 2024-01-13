@@ -38,9 +38,16 @@
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'tizen'">6.5</SupportedOSPlatformVersion>
 	</PropertyGroup>
 
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net8.0-android|AnyCPU'">
+	<!--<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)'=='Release|net8.0-android'">
 	  <RunAOTCompilation>False</RunAOTCompilation>
+    <PublishAot>False</PublishAot>
 	</PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)'=='Release|net8.0-ios'">
+    <RunAOTCompilation>True</RunAOTCompilation>
+    <PublishAot>True</PublishAot>
+    <PublishAotUsingRuntimePack>True</PublishAotUsingRuntimePack>
+  </PropertyGroup>-->
 
   <!--<PropertyGroup>
     <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
@@ -73,7 +80,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\epj.RouteGenerator\epj.RouteGenerator.csproj" OutputItemType="Analyzer" />
+	  <ProjectReference Include="..\epj.RouteGenerator\epj.RouteGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
 	</ItemGroup>
 
 </Project>
