@@ -129,7 +129,7 @@ namespace RouteGeneratorSample
 }
 ```
 
-# Route registration (e.g. in .NET MAUI)
+## Route registration (e.g. in .NET MAUI)
 
 [Miguel Delgado](https://github.com/mdelgadov) pointed out that routes can easily be registered like follows using reflection, e.g. when using .NET MAUI (thanks for this):
 
