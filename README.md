@@ -129,6 +129,19 @@ namespace RouteGeneratorSample
 }
 ```
 
+# Route registration (e.g. in .NET MAUI)
+
+[Miguel Delgado](https://github.com/mdelgadov) pointed out that routes can easily be registered like follows using reflection, e.g. when using .NET MAUI (thanks for this):
+
+```c#
+foreach (var route in Routes.AllRoutes)
+{
+    Routing.RegisterRoute(route, Type.GetType(route));
+}
+```
+
+Since the library is not MAUI-specific, I will not add such a utility method directly to this library. However, as mentioned below, automatic registration could be handled in a MAUI-specific layer.
+
 # Future Ideas
 
 - Platform-specific layer(s), e.g. epj.RouteGenerator.MAUI
