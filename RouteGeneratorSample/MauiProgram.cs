@@ -7,7 +7,7 @@ namespace RouteGeneratorSample;
 [AutoRoutes("Page")]
 [ExtraRoute("SomeOtherRoute")]
 [ExtraRoute("SomeFaulty!Route")]
-[ExtraRoute("YetAnotherRoute")]
+[ExtraRoute("YetAnotherRoute", nameof(MainPage))]
 [ExtraRoute("YetAnotherRoute")]
 public static class MauiProgram
 {
