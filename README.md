@@ -131,7 +131,7 @@ namespace RouteGeneratorSample
 
 ## Route registration (e.g. in .NET MAUI)
 
-[Miguel Delgado](https://github.com/mdelgadov) pointed out that routes can easily be registered like follows using reflection, e.g. when using .NET MAUI (thanks for this):
+[Miguel Delgado](https://github.com/mdelgadov) pointed out that routes *could* technically be registered like follows using reflection, e.g. when using .NET MAUI (thanks for this):
 
 ```c#
 foreach (var route in Routes.AllRoutes)
@@ -139,6 +139,8 @@ foreach (var route in Routes.AllRoutes)
     Routing.RegisterRoute(route, Type.GetType(route));
 }
 ```
+
+**Note:** This only works if the `foreach`-loop is executed from within the same namespace as the pages, which often is not the case. This is because `Type.GetType(typename)` doesn't walk the up namespaces to find the matching type.
 
 Since the library is not MAUI-specific, I will not add such a utility method directly to this library. However, as mentioned below, automatic registration could be handled in a MAUI-specific layer.
 
