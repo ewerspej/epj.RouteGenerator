@@ -12,9 +12,9 @@ namespace RouteGeneratorSampleConsole
     {
         public static void PrintRoutes()
         {
-            foreach (var route in Routes.AllRoutes)
+            foreach (var route in Routes.RouteTypenames)
             {
-                Console.WriteLine(route);
+                Console.WriteLine($"{route.Key}: {route.Value}");
             }
         }
     }
