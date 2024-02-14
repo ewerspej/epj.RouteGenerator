@@ -60,6 +60,15 @@ namespace RouteGeneratorSample
         };
         
         public static ReadOnlyCollection<string> AllRoutes => allRoutes.AsReadOnly();
+
+        private static Dictionary<string, string> routeTypenames = new()
+        {
+            { MainPage, "RouteGeneratorSample.MainPage" },
+            { VolvoPage, "RouteGeneratorSample.Cars.VolvoPage" },
+            { AudiPage, "RouteGeneratorSample.Cars.AudiPage" },
+        };
+        
+        public static ReadOnlyDictionary<string, string> RouteTypenames => routeTypenames.AsReadOnly();
     }
 }
 ```
@@ -78,13 +87,15 @@ There may be situations where you need to be able to specify extra routes, e.g. 
 
 For situations like these, the Route Generator exposes a second attribute called `[ExtraRoute]` and it takes a single argument representing the name of the route. You may not pass null, empty strings or whitespace as well as special characters. Duplicates will be ignored.
 
+If an extra route is specified whose name doesn't match any existing class name, you will have to provide a type to the attribute in order to include it in the generated `Routes.RouteTypenames` dictionary.
+
 ```c#
 namespace RouteGeneratorSample;
 
 [AutoRoutes("Page")]
 [ExtraRoute("SomeOtherRoute")] // valid
 [ExtraRoute("SomeFaulty!Route")] // invalid
-[ExtraRoute("YetAnotherRoute")] // valid
+[ExtraRoute("YetAnotherRoute", typeof(MainPage))] // valid
 [ExtraRoute("YetAnotherRoute")] // ignored, because it's a duplicate
 public static class MauiProgram
 {
@@ -125,9 +136,21 @@ namespace RouteGeneratorSample
         };
         
         public static ReadOnlyCollection<string> AllRoutes => allRoutes.AsReadOnly();
+
+        private static Dictionary<string, string> routeTypenames = new()
+        {
+            { MainPage, "RouteGeneratorSample.MainPage" },
+            { VolvoPage, "RouteGeneratorSample.Cars.VolvoPage" },
+            { AudiPage, "RouteGeneratorSample.Cars.AudiPage" },
+            { YetAnotherRoute, "RouteGeneratorSample.MainPage" },
+        };
+        
+        public static ReadOnlyDictionary<string, string> RouteTypenames => routeTypenames.AsReadOnly();
     }
 }
 ```
+
+***Note**: If you don't provide a type to the [ExtraRoute] attribute and the specified route doesn't match any existing class name, the `RouteTypenames` dictionary will not contain an entry for that route. Above, this is the case for the "SomeOtherRoute" route.*
 
 ## Route registration (e.g. in .NET MAUI)
 
