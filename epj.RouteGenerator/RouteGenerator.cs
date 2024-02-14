@@ -225,7 +225,7 @@ public class RouteGenerator : IIncrementalGenerator
                                
                                private static Dictionary<string, string> routeTypenames = new()
                                {
-                                   {{string.Join(",\n            ", routesAndNamespacesDictionary.Select(x => $"{{\"{x.Key}\",\"{x.Value}\"}}"))}}
+                                   {{string.Join(",\n            ", routesAndNamespacesDictionary.Select(x => $"{{{x.Key},\"{x.Value}\"}}"))}}
                                };
                                
                                public static ReadOnlyDictionary<string, string> RouteTypenames => routeTypenames.AsReadOnly();
