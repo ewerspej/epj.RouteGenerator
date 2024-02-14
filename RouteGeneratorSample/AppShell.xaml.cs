@@ -1,4 +1,4 @@
-﻿using RouteGeneratorSample.Cars;
+﻿using System.Diagnostics;
 
 namespace RouteGeneratorSample
 {
@@ -8,23 +8,13 @@ namespace RouteGeneratorSample
         {
             InitializeComponent();
 
-            //Routing.RegisterRoute(Routes.AudiPage, typeof(AudiPage));
-            //Routing.RegisterRoute(Routes.VolvoPage, typeof(VolvoPage));
             Routing.RegisterRoute(Routes.SomeOtherRoute, typeof(MainPage));
-            Routing.RegisterRoute(Routes.YetAnotherRoute, typeof(MainPage));
 
-            //foreach (var route in Routes.AllRoutes)
-            //{
-            //    var type = Type.GetType(route);
-            //    if (type is not null)
-            //    {
-            //        Routing.RegisterRoute(route, type);
-            //    }
-            //}
-
-            foreach (var routeNamespace in Routes.RouteTypenames)
+            foreach (var route in Routes.RouteTypenames)
             {
-                Routing.RegisterRoute(routeNamespace.Key, Type.GetType(routeNamespace.Value));
+                Routing.RegisterRoute(route.Key, Type.GetType(route.Value));
+
+                Debug.WriteLine($"{route.Key}: {route.Value}");
             }
         }
     }

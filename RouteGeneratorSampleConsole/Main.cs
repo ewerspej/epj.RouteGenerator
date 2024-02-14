@@ -6,7 +6,8 @@ namespace RouteGeneratorSampleConsole
     [AutoRoutes("Route")]
     [ExtraRoute(nameof(Fastest))]
     [ExtraRoute("Inval!dRoute")]
-    [ExtraRoute("RouteWithAView")]
+    [ExtraRoute("RouteWithoutAType")]
+    [ExtraRoute("RouteWithAView", typeof(Fastest))]
     [ExtraRoute("RouteWithAView")]
     public static class Main
     {
