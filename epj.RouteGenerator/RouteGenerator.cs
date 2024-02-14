@@ -285,7 +285,7 @@ public class RouteGenerator : IIncrementalGenerator
                public class ExtraRouteAttribute : Attribute
                {
                    public string Route { get; }
-                   public Type Typename { get; }
+                   public Type? Typename { get; }
                
                    public ExtraRouteAttribute(string route)
                    {
