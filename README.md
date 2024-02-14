@@ -131,22 +131,20 @@ namespace RouteGeneratorSample
 
 ## Route registration (e.g. in .NET MAUI)
 
-[Miguel Delgado](https://github.com/mdelgadov) pointed out that routes *could* technically be registered like follows using reflection, e.g. when using .NET MAUI (thanks for this):
+Inspired by a comment by [Miguel Delgado](https://github.com/mdelgadov), version 1.0.1-alpha will feature a new `Routes.RouteTypenames` dictionary that maps route names to their respective type names. This can be used to register routes like this:
 
 ```c#
-foreach (var route in Routes.AllRoutes)
+foreach (var route in Routes.RouteTypenames)
 {
-    Routing.RegisterRoute(route, Type.GetType(route));
+    Routing.RegisterRoute(route.Key, Type.GetType(route.Value));
 }
 ```
 
-**Note:** This only works if the `foreach`-loop is executed from within the same namespace as the pages, which often is not the case. This is because `Type.GetType(typename)` doesn't walk the up namespaces to find the matching type.
-
-Since the library is not MAUI-specific, I will not add such a utility method directly to this library. However, as mentioned below, automatic registration could be handled in a MAUI-specific layer.
+Since this library is not MAUI-specific, I will not add such a utility method directly to this library. However, as mentioned below, automatic registration could be handled in a MAUI-specific layer.
 
 # Future Ideas
 
-- Platform-specific layer(s), e.g. epj.RouteGenerator.MAUI
+- Platform-specific layer(s), e.g. epj.RouteGenerator.Maui
   - Automatic route registration
   - Automatic registration of Pages and ViewModels as services
   - Generation of route-specific extensions or methods (e.g. `Shell.Current.GoToMyAwesomePage(params)`)
