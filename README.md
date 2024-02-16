@@ -16,7 +16,7 @@ Although the sample project is using .NET MAUI, this generator can also be used 
 
 First, add the [epj.RouteGenerator](https://www.nuget.org/packages/epj.RouteGenerator/) nuget package to your target project that contains the classes (i.e. pages) from which routes should be automatically generated.
 
-Then, use the `[AutoRoutes]` attribute from the `epj.RouteGenerator`namespace on one of the classes at the root of your application. This must be within the same project and namespace containing the pages.
+Then, use the `[AutoRoutes]` attribute from the `epj.RouteGenerator` namespace on one of the classes at the root of your application. This must be within the same project and namespace containing the pages.
 
 You must provide a *suffix* argument which represents the naming convention for your routes to the attribute, e.g. "Page" like above. It doesn't have to be "Page", it depends on the naming convention you use for pages in your app. If all your page classes end in "Site", then you would pass "Site" to the attribute.
 This suffix is used in order to identify all classes that should be included as routes in the generated `Routes` class based on their *class name*.
