@@ -13,7 +13,7 @@ namespace RouteGeneratorSampleConsole
     {
         public static void PrintRoutes()
         {
-            foreach (var route in Routes.RouteTypenames)
+            foreach (var route in Routes.RouteTypeMap)
             {
                 Console.WriteLine($"{route.Key}: {route.Value}");
             }

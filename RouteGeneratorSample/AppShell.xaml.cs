@@ -10,9 +10,9 @@ namespace RouteGeneratorSample
 
             Routing.RegisterRoute(Routes.SomeOtherRoute, typeof(MainPage));
 
-            foreach (var route in Routes.RouteTypenames)
+            foreach (var route in Routes.RouteTypeMap)
             {
-                Routing.RegisterRoute(route.Key, Type.GetType(route.Value));
+                Routing.RegisterRoute(route.Key, route.Value);
 
                 Debug.WriteLine($"{route.Key}: {route.Value}");
             }
