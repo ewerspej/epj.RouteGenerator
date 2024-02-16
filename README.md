@@ -154,7 +154,7 @@ namespace RouteGeneratorSample
 
 ## Route registration (e.g. in .NET MAUI)
 
-Inspired by a comment by [Miguel Delgado](https://github.com/mdelgadov), version 1.0.1-alpha will feature a new `Routes.RouteTypeMap` dictionary that maps route names to their respective Type. This can be used to register routes like this:
+Inspired by a comment by [Miguel Delgado](https://github.com/mdelgadov), version *1.0.1* will feature a new `Routes.RouteTypeMap` dictionary that maps route names to their respective Type. This can be used to register routes like this:
 
 ```c#
 foreach (var route in Routes.RouteTypeMap)
