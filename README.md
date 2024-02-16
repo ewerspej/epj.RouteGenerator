@@ -61,14 +61,14 @@ namespace RouteGeneratorSample
         
         public static ReadOnlyCollection<string> AllRoutes => allRoutes.AsReadOnly();
 
-        private static Dictionary<string, string> routeTypenames = new()
+        private static Dictionary<string, Type> routeTypeMap = new()
         {
-            { MainPage, "RouteGeneratorSample.MainPage" },
-            { VolvoPage, "RouteGeneratorSample.Cars.VolvoPage" },
-            { AudiPage, "RouteGeneratorSample.Cars.AudiPage" },
+            { MainPage, typeof(RouteGeneratorSample.MainPage) },
+            { VolvoPage, typeof(RouteGeneratorSample.Cars.VolvoPage) },
+            { AudiPage, typeof(RouteGeneratorSample.Cars.AudiPage) },
         };
         
-        public static ReadOnlyDictionary<string, string> RouteTypenames => routeTypenames.AsReadOnly();
+        public static ReadOnlyDictionary<string, Type> RouteTypeMap => routeTypeMap.AsReadOnly();
     }
 }
 ```
@@ -87,7 +87,7 @@ There may be situations where you need to be able to specify extra routes, e.g. 
 
 For situations like these, the Route Generator exposes a second attribute called `[ExtraRoute]` and it takes a single argument representing the name of the route. You may not pass null, empty strings or whitespace as well as special characters. Duplicates will be ignored.
 
-If an extra route is specified whose name doesn't match any existing class name, you will have to provide a type to the attribute in order to include it in the generated `Routes.RouteTypenames` dictionary.
+If an extra route is specified whose name doesn't match any existing class name, you will have to provide a type to the attribute in order to include it in the generated `Routes.RouteTypeMap` dictionary.
 
 ```c#
 namespace RouteGeneratorSample;
@@ -137,29 +137,29 @@ namespace RouteGeneratorSample
         
         public static ReadOnlyCollection<string> AllRoutes => allRoutes.AsReadOnly();
 
-        private static Dictionary<string, string> routeTypenames = new()
+        private static Dictionary<string, Type> routeTypeMap = new()
         {
-            { MainPage, "RouteGeneratorSample.MainPage" },
-            { VolvoPage, "RouteGeneratorSample.Cars.VolvoPage" },
-            { AudiPage, "RouteGeneratorSample.Cars.AudiPage" },
-            { YetAnotherRoute, "RouteGeneratorSample.MainPage" },
+            { MainPage, typeof(RouteGeneratorSample.MainPage) },
+            { VolvoPage, typeof(RouteGeneratorSample.Cars.VolvoPage) },
+            { AudiPage, typeof(RouteGeneratorSample.Cars.AudiPage) },
+            { YetAnotherRoute, typeof(RouteGeneratorSample.MainPage) },
         };
         
-        public static ReadOnlyDictionary<string, string> RouteTypenames => routeTypenames.AsReadOnly();
+        public static ReadOnlyDictionary<string, Type> RouteTypeMap => routeTypeMap.AsReadOnly();
     }
 }
 ```
 
-***Note**: If you don't provide a type to the [ExtraRoute] attribute and the specified route doesn't match any existing class name, the `RouteTypenames` dictionary will not contain an entry for that route. Above, this is the case for the "SomeOtherRoute" route.*
+***Note**: If you don't provide a type to the [ExtraRoute] attribute and the specified route doesn't match any existing class name, the `Routes.RouteTypeMap` dictionary will not contain an entry for that route. Above, this is the case for the "SomeOtherRoute" route.*
 
 ## Route registration (e.g. in .NET MAUI)
 
-Inspired by a comment by [Miguel Delgado](https://github.com/mdelgadov), version 1.0.1-alpha will feature a new `Routes.RouteTypenames` dictionary that maps route names to their respective type names. This can be used to register routes like this:
+Inspired by a comment by [Miguel Delgado](https://github.com/mdelgadov), version 1.0.1-alpha will feature a new `Routes.RouteTypeMap` dictionary that maps route names to their respective Type. This can be used to register routes like this:
 
 ```c#
-foreach (var route in Routes.RouteTypenames)
+foreach (var route in Routes.RouteTypeMap)
 {
-    Routing.RegisterRoute(route.Key, Type.GetType(route.Value));
+    Routing.RegisterRoute(route.Key, route.Value);
 }
 ```
 
