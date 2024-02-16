@@ -87,7 +87,7 @@ There may be situations where you need to be able to specify extra routes, e.g. 
 
 For situations like these, the Route Generator exposes a second attribute called `[ExtraRoute]` and it takes a single argument representing the name of the route. You may not pass null, empty strings or whitespace as well as special characters. Duplicates will be ignored.
 
-If an extra route is specified whose name doesn't match any existing class name, you will have to provide a type to the attribute in order to include it in the generated `Routes.RouteTypeMap` dictionary.
+If an extra route is specified whose name doesn't match any existing class name, you will have to provide a type to the attribute in order to include it in the generated `Routes.RouteTypeMap` dictionary using `typeof(SomeClass)`.
 
 ```c#
 namespace RouteGeneratorSample;
