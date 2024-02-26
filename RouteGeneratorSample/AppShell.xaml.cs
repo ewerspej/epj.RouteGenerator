@@ -1,17 +1,20 @@
-﻿using RouteGeneratorSample.Cars;
+﻿using System.Diagnostics;
 
-namespace RouteGeneratorSample
+namespace RouteGeneratorSample;
+
+public partial class AppShell : Shell
 {
-    public partial class AppShell : Shell
+    public AppShell()
     {
-        public AppShell()
-        {
-            InitializeComponent();
+        InitializeComponent();
 
-            Routing.RegisterRoute(Routes.AudiPage, typeof(AudiPage));
-            Routing.RegisterRoute(Routes.VolvoPage, typeof(VolvoPage));
-            Routing.RegisterRoute(Routes.SomeOtherRoute, typeof(MainPage));
-            Routing.RegisterRoute(Routes.YetAnotherRoute, typeof(MainPage));
+        Routing.RegisterRoute(Routes.SomeOtherRoute, typeof(MainPage));
+
+        foreach (var route in Routes.RouteTypeMap)
+        {
+            Routing.RegisterRoute(route.Key, route.Value);
+
+            Debug.WriteLine($"{route.Key}: {route.Value}");
         }
     }
 }

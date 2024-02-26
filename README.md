@@ -16,7 +16,7 @@ Although the sample project is using .NET MAUI, this generator can also be used 
 
 First, add the [epj.RouteGenerator](https://www.nuget.org/packages/epj.RouteGenerator/) nuget package to your target project that contains the classes (i.e. pages) from which routes should be automatically generated.
 
-Then, use the `[AutoRoutes]` attribute from the `epj.RouteGenerator`namespace on one of the classes at the root of your application. This must be within the same project and namespace containing the pages.
+Then, use the `[AutoRoutes]` attribute from the `epj.RouteGenerator` namespace on one of the classes at the root of your application. This must be within the same project and namespace containing the pages.
 
 You must provide a *suffix* argument which represents the naming convention for your routes to the attribute, e.g. "Page" like above. It doesn't have to be "Page", it depends on the naming convention you use for pages in your app. If all your page classes end in "Site", then you would pass "Site" to the attribute.
 This suffix is used in order to identify all classes that should be included as routes in the generated `Routes` class based on their *class name*.
@@ -60,6 +60,15 @@ namespace RouteGeneratorSample
         };
         
         public static ReadOnlyCollection<string> AllRoutes => allRoutes.AsReadOnly();
+
+        private static Dictionary<string, Type> routeTypeMap = new()
+        {
+            { MainPage, typeof(RouteGeneratorSample.MainPage) },
+            { VolvoPage, typeof(RouteGeneratorSample.Cars.VolvoPage) },
+            { AudiPage, typeof(RouteGeneratorSample.Cars.AudiPage) },
+        };
+        
+        public static ReadOnlyDictionary<string, Type> RouteTypeMap => routeTypeMap.AsReadOnly();
     }
 }
 ```
@@ -78,13 +87,15 @@ There may be situations where you need to be able to specify extra routes, e.g. 
 
 For situations like these, the Route Generator exposes a second attribute called `[ExtraRoute]` and it takes a single argument representing the name of the route. You may not pass null, empty strings or whitespace as well as special characters. Duplicates will be ignored.
 
+If an extra route is specified whose name doesn't match any existing class name, you will have to provide a type to the attribute in order to include it in the generated `Routes.RouteTypeMap` dictionary using `typeof(SomeClass)`.
+
 ```c#
 namespace RouteGeneratorSample;
 
 [AutoRoutes("Page")]
 [ExtraRoute("SomeOtherRoute")] // valid
 [ExtraRoute("SomeFaulty!Route")] // invalid
-[ExtraRoute("YetAnotherRoute")] // valid
+[ExtraRoute("YetAnotherRoute", typeof(MainPage))] // valid
 [ExtraRoute("YetAnotherRoute")] // ignored, because it's a duplicate
 public static class MauiProgram
 {
@@ -125,28 +136,38 @@ namespace RouteGeneratorSample
         };
         
         public static ReadOnlyCollection<string> AllRoutes => allRoutes.AsReadOnly();
+
+        private static Dictionary<string, Type> routeTypeMap = new()
+        {
+            { MainPage, typeof(RouteGeneratorSample.MainPage) },
+            { VolvoPage, typeof(RouteGeneratorSample.Cars.VolvoPage) },
+            { AudiPage, typeof(RouteGeneratorSample.Cars.AudiPage) },
+            { YetAnotherRoute, typeof(RouteGeneratorSample.MainPage) },
+        };
+        
+        public static ReadOnlyDictionary<string, Type> RouteTypeMap => routeTypeMap.AsReadOnly();
     }
 }
 ```
 
+***Note**: If you don't provide a type to the [ExtraRoute] attribute and the specified route doesn't match any existing class name, the `Routes.RouteTypeMap` dictionary will not contain an entry for that route. Above, this is the case for the "SomeOtherRoute" route.*
+
 ## Route registration (e.g. in .NET MAUI)
 
-[Miguel Delgado](https://github.com/mdelgadov) pointed out that routes *could* technically be registered like follows using reflection, e.g. when using .NET MAUI (thanks for this):
+Inspired by a comment by [Miguel Delgado](https://github.com/mdelgadov), version *1.0.1* will feature a new `Routes.RouteTypeMap` dictionary that maps route names to their respective Type. This can be used to register routes like this:
 
 ```c#
-foreach (var route in Routes.AllRoutes)
+foreach (var route in Routes.RouteTypeMap)
 {
-    Routing.RegisterRoute(route, Type.GetType(route));
+    Routing.RegisterRoute(route.Key, route.Value);
 }
 ```
 
-**Note:** This only works if the `foreach`-loop is executed from within the same namespace as the pages, which often is not the case. This is because `Type.GetType(typename)` doesn't walk the up namespaces to find the matching type.
-
-Since the library is not MAUI-specific, I will not add such a utility method directly to this library. However, as mentioned below, automatic registration could be handled in a MAUI-specific layer.
+Since this library is not MAUI-specific, I will not add such a utility method directly to this library. However, as mentioned below, automatic registration could be handled in a MAUI-specific layer.
 
 # Future Ideas
 
-- Platform-specific layer(s), e.g. epj.RouteGenerator.MAUI
+- Platform-specific layer(s), e.g. epj.RouteGenerator.Maui
   - Automatic route registration
   - Automatic registration of Pages and ViewModels as services
   - Generation of route-specific extensions or methods (e.g. `Shell.Current.GoToMyAwesomePage(params)`)
