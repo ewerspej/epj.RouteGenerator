@@ -154,7 +154,7 @@ namespace RouteGeneratorSample
 
 ## Route registration (e.g. in .NET MAUI)
 
-Inspired by a comment by [Miguel Delgado](https://github.com/mdelgadov), version *1.0.1* will feature a new `Routes.RouteTypeMap` dictionary that maps route names to their respective Type. This can be used to register routes like this:
+Inspired by a comment by [Miguel Delgado](https://github.com/mdelgadov), version *1.0.1* introduces a new `Routes.RouteTypeMap` dictionary that maps route names to their respective Type. This can be used to register routes like this:
 
 ```c#
 foreach (var route in Routes.RouteTypeMap)
@@ -164,6 +164,16 @@ foreach (var route in Routes.RouteTypeMap)
 ```
 
 Since this library is not MAUI-specific, I will not add such a utility method directly to this library. However, as mentioned below, automatic registration could be handled in a MAUI-specific layer.
+
+# Resources
+
+The Route Generator is featured in the following resources:
+
+- Videos:
+  - [No More Magic String Navigation in .NET MAUI Shell with this Plugin!](https://www.youtube.com/watch?v=XNLKyEPWqws) by [Gerald Versluis](https://github.com/jfversluis)
+- Blog posts:
+  - [Introducing Route Generator for .NET](https://blog.ewers-peters.de/introducing-route-generator-for-net)
+  - [Add automatic route registration to your .NET MAUI app](https://blog.ewers-peters.de/add-automatic-route-registration-to-your-net-maui-app)
 
 # Future Ideas
 
@@ -175,3 +185,11 @@ Since this library is not MAUI-specific, I will not add such a utility method di
 # Remarks about Native AOT support
 
 While Native AOT is still experimental in .NET 8.0 (e.g., it's not supported for Android yet and even iOS still is experiencing some hiccups), the latest version of Route Generator should technically be [AOT-compatible](https://learn.microsoft.com/dotnet/core/deploying/native-aot#limitations-of-native-aot-deployment). However, I cannot test this properly while there are still issues. Full Native AOT support will probably only be available with .NET 9.0 or higher: https://github.com/dotnet/maui/issues/18839#issuecomment-1828006233
+
+# Support
+
+You can support this project by starring it on GitHub, sharing it with others or contributing to it. If you have any questions, feedback or ideas, feel free to open an issue or reach out to me.
+
+Additionally, you can support me by buying me a coffee or by becoming a sponsor.
+
+<a href="https://www.buymeacoffee.com/ewerspej" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-yellow.png" alt="Buy Me A Coffee" height="41" width="174"></a>
