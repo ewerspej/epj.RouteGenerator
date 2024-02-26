@@ -9,7 +9,7 @@
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageId>epj.RouteGenerator</PackageId>
     <Title>Route Generator for .NET apps</Title>
-    <Version>1.0.1-alpha2</Version>
+    <Version>1.0.1</Version>
     <Authors>ewerspej</Authors>
     <Description>Automatically generates route names for navigation based on a class name convention for .NET applications</Description>
     <PackageProjectUrl>https://github.com/ewerspej/epj.RouteGenerator</PackageProjectUrl>
