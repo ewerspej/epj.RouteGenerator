@@ -79,7 +79,7 @@ Now, you can use these identifiers for your navigation without having to worry a
 await Shell.Current.GoToAsync($"/{Routes.AudiPage}");
 ```
 
-If the `AudiPage` would ever get renamed to some other class name, you would instantly notice, because the compiler wouldn't find the `Routes.AudiPage` symbol anymore and emit an error, letting you know that it has changed. When using verbatim strings instead of an identifier like this, you would notice this change until the app either crashes or stops behaving the way it should.
+If the `AudiPage` would ever get renamed to some other class name, you would instantly notice, because the compiler wouldn't find the `Routes.AudiPage` symbol anymore and emit an error, letting you know that it has changed. When using verbatim strings instead of an identifier like this, you wouldn't notice this change until the app either crashes or stops behaving the way it should.
 
 ## Extra Routes
 
