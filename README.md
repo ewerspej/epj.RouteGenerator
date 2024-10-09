@@ -187,7 +187,7 @@ The Route Generator is featured in the following resources:
 
 ## C# version compatibility
 
-This source generator only works with *C# 10.0* or higher. If you are using *.NET 5.0* or below (e.g. *.NET Standard 2.0* or *2.1*), you will need to specify `<LangVersion>10.0</LangVersion` in your project file.
+This source generator only works with **C# 10.0** or higher. If you are using **.NET 5.0 or below**, you will need to specify `<LangVersion>10.0</LangVersion>` in your project file.
 
 The source generator is compatible with nullable reference types, the `[ExtraRoute]` attribute uses a `Type?` property. Please let me know if you run into problems with this.
 
