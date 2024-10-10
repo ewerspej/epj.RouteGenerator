@@ -193,7 +193,7 @@ The source generator is compatible with nullable reference types, the `[ExtraRou
 
 ## Native AOT support
 
-While Native AOT is still experimental in .NET 8.0 (e.g., it's not supported for Android yet and even iOS still is experiencing some hiccups), the latest version of Route Generator should technically be [AOT-compatible](https://learn.microsoft.com/dotnet/core/deploying/native-aot#limitations-of-native-aot-deployment). However, I cannot test this properly while there are still issues. Full Native AOT support will probably only be available with .NET 9.0 or higher according to this [issue on GitHub](https://github.com/dotnet/maui/issues/18839#issuecomment-1828006233).
+While Native AOT is still experimental in .NET 8.0 *(e.g., it's not supported for Android yet and even iOS still is experiencing some hiccups)*, the latest version of Route Generator should technically be [AOT-compatible](https://learn.microsoft.com/dotnet/core/deploying/native-aot#limitations-of-native-aot-deployment). However, I cannot test this properly while there are still issues. Full Native AOT support will probably only be available with .NET 9.0 or higher according to this [issue on GitHub](https://github.com/dotnet/maui/issues/18839#issuecomment-1828006233).
 
 # Support
 
