@@ -5,10 +5,10 @@ using RouteGeneratorSample.Navigation;
 namespace RouteGeneratorSample;
 
 [AutoRoutes("Page")]
-[ExtraRoute("SomeOtherRoute")]
-[ExtraRoute("SomeFaulty!Route")]
+[ExtraRoute("SomeFaulty!Route")] // invalid, will emit warning EXR001 and will be ignored
 [ExtraRoute("YetAnotherRoute", typeof(MainPage))]
-[ExtraRoute("YetAnotherRoute")]
+[ExtraRoute("YetAnotherRoute")] // duplicate, will emit warning EXR002 and will be ignored
+[ExtraRoute("SomeOtherRoute")] // valid, but no corresponding type available, will emit warning EXR003
 public static class MauiProgram
 {
     public static MauiApp CreateMauiApp()

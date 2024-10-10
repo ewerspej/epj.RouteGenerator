@@ -85,7 +85,7 @@ If the `AudiPage` would ever get renamed to some other class name, you would ins
 
 There may be situations where you need to be able to specify extra routes, e.g. when a route doesn't follow the specified naming convention using the suffix or when a routes is defined in a different way (in MAUI or Xamarin.Forms this could be using a `<ShellContent>` element in XAML).
 
-For situations like these, the Route Generator exposes a second attribute called `[ExtraRoute]` and it takes a single argument representing the name of the route. You may not pass null, empty strings or whitespace as well as special characters. Duplicates will be ignored.
+For situations like these, the Route Generator exposes a second attribute called `[ExtraRoute]` and it takes a single argument representing the name of the route. You should not pass `null`, empty strings, any whitespace or special characters. Duplicates will be ignored.
 
 If an extra route is specified whose name doesn't match any existing class name, you will have to provide a type to the attribute in order to include it in the generated `Routes.RouteTypeMap` dictionary using `typeof(SomeClass)`.
 
@@ -93,10 +93,11 @@ If an extra route is specified whose name doesn't match any existing class name,
 namespace RouteGeneratorSample;
 
 [AutoRoutes("Page")]
-[ExtraRoute("SomeOtherRoute")] // valid
-[ExtraRoute("SomeFaulty!Route")] // invalid
-[ExtraRoute("YetAnotherRoute", typeof(MainPage))] // valid
-[ExtraRoute("YetAnotherRoute")] // ignored, because it's a duplicate
+[ExtraRoute("SomeFaulty!Route")] // invalid, will emit warning EXR001 and will be ignored
+[ExtraRoute("YetAnotherRoute", typeof(MainPage))]
+[ExtraRoute("YetAnotherRoute")] // duplicate, will emit warning EXR002 and will be ignored
+[ExtraRoute("SomeOtherRoute")] // valid, but no corresponding type available, will emit warning EXR003
+[ExtraRoute(null)] // will be ignored
 public static class MauiProgram
 {
     public static MauiApp CreateMauiApp()
@@ -154,7 +155,7 @@ namespace RouteGeneratorSample
 
 ## Route registration (e.g. in .NET MAUI)
 
-Inspired by a comment by [Miguel Delgado](https://github.com/mdelgadov), version *1.0.1* introduces a new `Routes.RouteTypeMap` dictionary that maps route names to their respective Type. This can be used to register routes like this:
+Inspired by a comment by [Miguel Delgado](https://github.com/mdelgadov), version *1.0.1* introduced a new `Routes.RouteTypeMap` dictionary that maps route names to their respective Type. This can be used to register routes like this:
 
 ```c#
 foreach (var route in Routes.RouteTypeMap)
@@ -182,9 +183,17 @@ The Route Generator is featured in the following resources:
   - Automatic registration of Pages and ViewModels as services
   - Generation of route-specific extensions or methods (e.g. `Shell.Current.GoToMyAwesomePage(params)`)
 
-# Remarks about Native AOT support
+# Remarks
 
-While Native AOT is still experimental in .NET 8.0 (e.g., it's not supported for Android yet and even iOS still is experiencing some hiccups), the latest version of Route Generator should technically be [AOT-compatible](https://learn.microsoft.com/dotnet/core/deploying/native-aot#limitations-of-native-aot-deployment). However, I cannot test this properly while there are still issues. Full Native AOT support will probably only be available with .NET 9.0 or higher: https://github.com/dotnet/maui/issues/18839#issuecomment-1828006233
+## C# version compatibility
+
+This source generator only works with **C# 10.0** or higher. If you are using **.NET 5.0 or below**, you will need to specify `<LangVersion>10.0</LangVersion>` in your project file.
+
+The source generator is compatible with nullable reference types, the `[ExtraRoute]` attribute uses a `Type?` property. Please let me know if you run into problems with this.
+
+## Native AOT support
+
+While Native AOT is still experimental in .NET 8.0 (e.g., it's not supported for Android yet and even iOS still is experiencing some hiccups), the latest version of Route Generator should technically be [AOT-compatible](https://learn.microsoft.com/dotnet/core/deploying/native-aot#limitations-of-native-aot-deployment). However, I cannot test this properly while there are still issues. Full Native AOT support will probably only be available with .NET 9.0 or higher according to this [issue on GitHub](https://github.com/dotnet/maui/issues/18839#issuecomment-1828006233).
 
 # Support
 
