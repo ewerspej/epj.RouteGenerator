@@ -78,8 +78,12 @@ public class RouteGenerator : IIncrementalGenerator
 
         var namespaceName = classWithAutoGenAttributeData.Class.ContainingNamespace.ToDisplayString();
 
-        var routeClassDeclarationSyntaxList = classes.Where(c => c.Identifier.Text.EndsWith(suffix)).ToList();
-        var routeNameList = routeClassDeclarationSyntaxList.Select(pageClass => pageClass.Identifier.Text).ToList();
+        var routeClassDeclarationSyntaxList = classes.Where(c => c.Identifier.Text.EndsWith(suffix))
+            .ToList();
+
+        var routeNameList = routeClassDeclarationSyntaxList.Select(pageClass => pageClass.Identifier.Text)
+            .Distinct()
+            .ToList();
 
         var routesAndTypenamesDictionary = new Dictionary<string, string>();
 

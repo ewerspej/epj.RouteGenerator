@@ -6,5 +6,7 @@ public partial class AudiPage : ContentPage
     {
         InitializeComponent();
         BindingContext = vm;
+
+        SayHello();
     }
 }
