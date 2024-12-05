@@ -1,4 +1,4 @@
-# epj.RouteGenerator
+# Route Generator for .NET
 
 ![License](https://img.shields.io/github/license/ewerspej/epj.RouteGenerator)
 [![Nuget](https://img.shields.io/nuget/v/epj.RouteGenerator)](https://www.nuget.org/packages/epj.RouteGenerator/)
