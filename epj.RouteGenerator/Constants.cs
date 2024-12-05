@@ -5,6 +5,8 @@ public static class Constants
     public const string Namespace = "epj.RouteGenerator";
     public const string AutoRoutesAttribute = "AutoRoutesAttribute";
     public const string ExtraRouteAttribute = "ExtraRouteAttribute";
+    public const string IgnoreRouteAttribute = "IgnoreRouteAttribute";
+    public const string IgnoreRouteName = "IgnoreRoute";
     public const string ARG001 = "ARG001";
     public const string EXR001 = "EXR001";
     public const string EXR002 = "EXR002";
