@@ -1,6 +1,6 @@
-﻿using System;
-using epj.RouteGenerator;
+﻿using epj.RouteGenerator;
 using RouteGeneratorSampleConsole.Route;
+using System;
 
 namespace RouteGeneratorSampleConsole
 {
@@ -18,8 +18,15 @@ namespace RouteGeneratorSampleConsole
         {
             foreach (var route in Routes.RouteTypeMap)
             {
+                if (route.Key.Equals(nameof(ShouldBeIgnoredRoute)))
+                {
+                    Console.WriteLine($"{nameof(ShouldBeIgnoredRoute)} should not be included in the route map");
+                    break;
+                }
+
                 Console.WriteLine($"{route.Key}: {route.Value}");
             }
         }
+
     }
 }

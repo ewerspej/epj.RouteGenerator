@@ -153,6 +153,31 @@ namespace RouteGeneratorSample
 
 ***Note**: If you don't provide a type to the [ExtraRoute] attribute and the specified route doesn't match any existing class name, the `Routes.RouteTypeMap` dictionary will not contain an entry for that route. Above, this is the case for the "SomeOtherRoute" route.*
 
+## Ignore specific routes
+
+There is a `[IgnoreRoute]` attribute that can be used to exclude specific classes from being included in the generated `Routes` class. This can be useful if you have a class that matches the naming convention but should not be included as a route for some reason *(e.g. non-abstract base classes)*:
+
+```c#
+using epj.RouteGenerator;
+
+namespace RouteGeneratorSample;
+
+[IgnoreRoute]
+public class SomeIgnorableRoute { }
+```
+
+Also, `abstract` classes are now ignored by default:
+
+```c#
+namespace RouteGeneratorSample;
+
+// will be ignored by default
+public abstract class BaseRoute { }
+
+// will be ignored by default
+public abstract class TypedBaseRoute<T> { }
+```
+
 ## Route registration (e.g. in .NET MAUI)
 
 Inspired by a comment by [Miguel Delgado](https://github.com/mdelgadov), version *1.0.1* introduced a new `Routes.RouteTypeMap` dictionary that maps route names to their respective Type. This can be used to register routes like this:
