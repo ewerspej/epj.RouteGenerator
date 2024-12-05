@@ -155,7 +155,7 @@ namespace RouteGeneratorSample
 
 ## Ignore specific routes
 
-There is a `[IgnoreRoute]` attribute that can be used to exclude specific classes from being included in the generated `Routes` class. This can be useful if you have a class that matches the naming convention but should not be included as a route for some reason *(e.g. non-abstract base classes)*:
+Starting with [v1.0.4](https://www.nuget.org/packages/epj.RouteGenerator/1.0.4), there is an `[IgnoreRoute]` attribute that can be used to exclude specific classes from being included in the generated `Routes` class. This can be useful if you have a class that matches the naming convention but should not be included as a route for some reason *(e.g. non-abstract base classes)*:
 
 ```c#
 using epj.RouteGenerator;
