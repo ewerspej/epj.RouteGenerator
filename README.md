@@ -196,7 +196,10 @@ Since this library is not MAUI-specific, I will not add such a utility method di
 The Route Generator is featured in the following resources:
 
 - Videos:
-  - [No More Magic String Navigation in .NET MAUI Shell with this Plugin!](https://www.youtube.com/watch?v=XNLKyEPWqws) by [Gerald Versluis](https://github.com/jfversluis)
+  - [No More Magic String Navigation in .NET MAUI Shell with this Plugin!](https://www.youtube.com/watch?v=XNLKyEPWqws) by [Gerald Versluis](https://github.com/jfversluis):
+    
+    [![No More Magic String Navigation in .NET MAUI Shell with this Plugin!](https://img.youtube.com/vi/XNLKyEPWqws/0.jpg)]([https://www.youtube.com/watch?v=dWdXXGa1_hI](https://www.youtube.com/watch?v=XNLKyEPWqws))
+    
 - Blog posts:
   - [Introducing Route Generator for .NET](https://blog.ewers-peters.de/introducing-route-generator-for-net)
   - [Add automatic route registration to your .NET MAUI app](https://blog.ewers-peters.de/add-automatic-route-registration-to-your-net-maui-app)
