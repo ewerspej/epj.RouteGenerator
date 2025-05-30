@@ -1,7 +1,7 @@
-﻿using System;
-using Microsoft.CodeAnalysis;
+﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -38,7 +38,7 @@ public class RouteGenerator : IIncrementalGenerator
         context.RegisterSourceOutput(compilation, Execute);
     }
 
-    private void Execute(SourceProductionContext context, (Compilation Left, ImmutableArray<ClassDeclarationSyntax> Right) compilationTuple)
+    private static void Execute(SourceProductionContext context, (Compilation Left, ImmutableArray<ClassDeclarationSyntax> Right) compilationTuple)
     {
         try
         {
@@ -71,16 +71,11 @@ public class RouteGenerator : IIncrementalGenerator
             if (classWithAutoGenAttributeData.AttributeData.ConstructorArguments.FirstOrDefault().Value is not string suffix || string.IsNullOrWhiteSpace(suffix))
             {
                 // Stop the generator if the suffix is null or an empty string
-                context.ReportDiagnostic(
-                    Diagnostic.Create(
-                        new DiagnosticDescriptor(
-                            Constants.ARG001,
-                            Constants.Error,
-                            $"The {Constants.AutoRoutesAttribute} suffix parameter is required and may not be null or empty and the class name must be valid",
-                            Constants.ErrorCategoryCompilation,
-                            DiagnosticSeverity.Error,
-                            true),
-                        Location.None));
+                context.ReportDiagnostic(CreateDiagnostic(
+                    Constants.ARG001,
+                    Constants.Error,
+                    $"The {Constants.AutoRoutesAttribute} suffix parameter is required and may not be null or empty and the class name must be valid",
+                    DiagnosticSeverity.Error));
 
                 return;
             }
@@ -100,7 +95,7 @@ public class RouteGenerator : IIncrementalGenerator
                 .Distinct()
                 .ToList();
 
-            var routesAndTypenamesDictionary = new Dictionary<string, string>();
+            var routesAndTypeNamesDictionary = new Dictionary<string, string>();
 
             foreach (var route in routeNameList)
             {
@@ -108,31 +103,26 @@ public class RouteGenerator : IIncrementalGenerator
                 var semanticModel = compilation.GetSemanticModel(routeClass.SyntaxTree);
                 var classSymbol = ModelExtensions.GetDeclaredSymbol(semanticModel, routeClass);
                 var routeTypename = $"{classSymbol!.ContainingNamespace}.{route}";
-                routesAndTypenamesDictionary.Add(route, routeTypename);
+                routesAndTypeNamesDictionary.Add(route, routeTypename);
             }
 
-            AddExtraRoutes(context, compilation, classes, routeNameList, routesAndTypenamesDictionary);
+            AddExtraRoutes(context, compilation, classes, routeNameList, routesAndTypeNamesDictionary);
 
-            var source = BuildSource(routeNameList, routesAndTypenamesDictionary, namespaceName);
+            var source = BuildSource(routeNameList, routesAndTypeNamesDictionary, namespaceName);
 
             context.AddSource(Constants.RoutesGenFileName, source);
         }
         catch (Exception ex)
         {
-            context.ReportDiagnostic(
-                Diagnostic.Create(
-                    new DiagnosticDescriptor(
-                        Constants.RGE001,
-                        Constants.Warning,
-                        $"An unexpected error occurred during source generation: {ex.GetType().Name}: {ex.Message}\n{ex.StackTrace}\n. The generator output may be invalid.",
-                        Constants.ErrorCategoryCompilation,
-                        DiagnosticSeverity.Warning,
-                        true),
-                    Location.None));
+            context.ReportDiagnostic(CreateDiagnostic(
+                Constants.RGE001,
+                Constants.Warning,
+                $"An unexpected error occurred during source generation: {ex.GetType().Name}: {ex.Message}\n{ex.StackTrace}\n. The generator output may be invalid.",
+                DiagnosticSeverity.Warning));
         }
     }
 
-    private void AddExtraRoutes(SourceProductionContext context, Compilation compilation, ImmutableArray<ClassDeclarationSyntax> classes, ICollection<string> routeNameList, Dictionary<string, string> routesAndTypenamesDictionary)
+    private static void AddExtraRoutes(SourceProductionContext context, Compilation compilation, ImmutableArray<ClassDeclarationSyntax> classes, ICollection<string> routeNameList, Dictionary<string, string> routesAndTypeNamesDictionary)
     {
         var attributeExtraRouteSymbol = compilation.GetTypeByMetadataName(Constants.ExtraRouteFullName);
 
@@ -168,42 +158,34 @@ public class RouteGenerator : IIncrementalGenerator
             //make sure route is valid and doesn't exist in routeNameList yet
             if (!ClassNameRegex.IsMatch(extraRoute))
             {
-                context.ReportDiagnostic(Diagnostic.Create(
-                    new DiagnosticDescriptor(
-                        Constants.EXR001,
-                        Constants.Error,
-                        $"The {Constants.ExtraRouteAttribute} route parameter must be a valid route name, ignoring invalid route '{extraRoute}'",
-                        Constants.ErrorCategoryCompilation,
-                        DiagnosticSeverity.Warning,
-                        true),
-                    Location.None));
+                context.ReportDiagnostic(CreateDiagnostic(
+                    Constants.EXR001,
+                    Constants.Error,
+                    $"The {Constants.ExtraRouteAttribute} route parameter must be a valid route name, ignoring invalid route '{extraRoute}'",
+                    DiagnosticSeverity.Warning));
 
                 continue;
             }
 
             if (routeNameList.Contains(extraRoute))
             {
-                context.ReportDiagnostic(Diagnostic.Create(
-                    new DiagnosticDescriptor(
-                        Constants.EXR002,
-                        Constants.Error,
-                        $"The {Constants.ExtraRouteAttribute} route parameter must be unique, ignoring duplicate '{extraRoute}'",
-                        Constants.ErrorCategoryCompilation,
-                        DiagnosticSeverity.Warning,
-                        true),
-                    Location.None));
+                context.ReportDiagnostic(CreateDiagnostic(
+                    Constants.EXR002,
+                    Constants.Error,
+                    $"The {Constants.ExtraRouteAttribute} route parameter must be unique, ignoring duplicate '{extraRoute}'",
+                    DiagnosticSeverity.Warning));
 
                 continue;
             }
 
             routeNameList.Add(extraRoute);
 
-            //if the attribute has a second parameter of type Type, get the FullName of the Type and store it in a variable
+            // if the attribute has a Type parameter, get the FullName of the Type and store it in a variable
             if (attributeData.ConstructorArguments.Length > 1 &&
                 attributeData.ConstructorArguments[1].Value is INamedTypeSymbol typeSymbol)
             {
                 var typeName = typeSymbol.ToString();
-                routesAndTypenamesDictionary.Add(extraRoute, typeName);
+                routesAndTypeNamesDictionary.Add(extraRoute, typeName);
 
                 // typename for route already found, no need to check further
                 continue;
@@ -214,15 +196,11 @@ public class RouteGenerator : IIncrementalGenerator
             if (extraRouteClass is null)
             {
                 // no class found for route
-                context.ReportDiagnostic(Diagnostic.Create(
-                    new DiagnosticDescriptor(
-                        Constants.EXR003,
-                        Constants.Warning,
-                        $"No class or typename found for {Constants.ExtraRouteAttribute}: '{extraRoute}'. Please specify the type.",
-                        Constants.ErrorCategoryCompilation,
-                        DiagnosticSeverity.Warning,
-                        true),
-                    Location.None));
+                context.ReportDiagnostic(CreateDiagnostic(
+                    Constants.EXR003,
+                    Constants.Warning,
+                    $"No class or typename found for {Constants.ExtraRouteAttribute}: '{extraRoute}'. Please specify the type.",
+                    DiagnosticSeverity.Warning));
 
                 continue;
             }
@@ -230,7 +208,7 @@ public class RouteGenerator : IIncrementalGenerator
             var semanticModel = compilation.GetSemanticModel(extraRouteClass.SyntaxTree);
             var classSymbol = ModelExtensions.GetDeclaredSymbol(semanticModel, extraRouteClass);
             var extraRouteTypename = $"{classSymbol!.ContainingNamespace}.{extraRoute}";
-            routesAndTypenamesDictionary.Add(extraRoute, extraRouteTypename);
+            routesAndTypeNamesDictionary.Add(extraRoute, extraRouteTypename);
         }
     }
 
@@ -274,16 +252,19 @@ public class RouteGenerator : IIncrementalGenerator
     {
         foreach (var member in namespaceSymbol.GetMembers())
         {
-            if (member is INamespaceSymbol childNamespace)
+            switch (member)
             {
-                foreach (var childClass in GetAllClasses(childNamespace))
+                case INamespaceSymbol childNamespace:
                 {
-                    yield return childClass;
+                    foreach (var childClass in GetAllClasses(childNamespace))
+                    {
+                        yield return childClass;
+                    }
+                    break;
                 }
-            }
-            else if (member is INamedTypeSymbol { TypeKind: TypeKind.Class } classSymbol)
-            {
-                yield return classSymbol;
+                case INamedTypeSymbol { TypeKind: TypeKind.Class } classSymbol:
+                    yield return classSymbol;
+                    break;
             }
         }
     }
@@ -354,5 +335,18 @@ public class RouteGenerator : IIncrementalGenerator
                {
                }
                """;
+    }
+
+    private static Diagnostic CreateDiagnostic(string id, string title, string message, DiagnosticSeverity severity, Location location = null)
+    {
+        return Diagnostic.Create(
+            new DiagnosticDescriptor(
+                id,
+                title,
+                message,
+                Constants.ErrorCategoryCompilation,
+                severity,
+                true),
+            location ?? Location.None);
     }
 }
