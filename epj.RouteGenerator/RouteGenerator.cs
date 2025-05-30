@@ -11,14 +11,14 @@ namespace epj.RouteGenerator;
 [Generator]
 public class RouteGenerator : IIncrementalGenerator
 {
-    private readonly Regex _classNameRegex = new(Constants.ClassNameRegex);
+    private static readonly Regex ClassNameRegex = new(Constants.ClassNameRegex);
 
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
         var syntaxProvider = context.SyntaxProvider.CreateSyntaxProvider(
-                (syntaxNode, _) => syntaxNode is ClassDeclarationSyntax,
-                (ctx, _) => (ClassDeclarationSyntax)ctx.Node)
-            .Where(c => c is not null);
+                static (syntaxNode, _) => syntaxNode is ClassDeclarationSyntax,
+                static (ctx, _) => (ClassDeclarationSyntax)ctx.Node)
+            .Where(static c => c is not null);
 
         var compilation = context.CompilationProvider.Combine(syntaxProvider.Collect());
 
@@ -148,7 +148,7 @@ public class RouteGenerator : IIncrementalGenerator
             }
 
             //make sure route is valid and doesn't exist in routeNameList yet
-            if (!_classNameRegex.IsMatch(extraRoute))
+            if (!ClassNameRegex.IsMatch(extraRoute))
             {
                 context.ReportDiagnostic(Diagnostic.Create(
                     new DiagnosticDescriptor(
