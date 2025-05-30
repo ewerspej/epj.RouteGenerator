@@ -1,4 +1,5 @@
-﻿using Microsoft.CodeAnalysis;
+﻿using System;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System.Collections.Generic;
@@ -39,79 +40,96 @@ public class RouteGenerator : IIncrementalGenerator
 
     private void Execute(SourceProductionContext context, (Compilation Left, ImmutableArray<ClassDeclarationSyntax> Right) compilationTuple)
     {
-        var (compilation, classes) = compilationTuple;
-
-        var attributeAutoGenSymbol = compilation.GetTypeByMetadataName(Constants.AutoRoutesFullName);
-
-        if (attributeAutoGenSymbol is null)
+        try
         {
-            // Stop the generator if no such attribute has been found (shouldn't happen as it's defined in the same assembly)
-            return;
-        }
+            var (compilation, classes) = compilationTuple;
 
-        var classWithAutoGenAttributeData = GetAllClasses(compilation.GlobalNamespace)
-            .Select(t => new
+            var attributeAutoGenSymbol = compilation.GetTypeByMetadataName(Constants.AutoRoutesFullName);
+
+            if (attributeAutoGenSymbol is null)
             {
-                Class = t,
-                AttributeData = t
-                    .GetAttributes()
-                    .FirstOrDefault(ad => ad?.AttributeClass is not null && ad.AttributeClass.Equals(attributeAutoGenSymbol, SymbolEqualityComparer.Default))
-            })
-            .First(t => t.AttributeData != null);
+                // Stop the generator if no such attribute has been found (shouldn't happen as it's defined in the same assembly)
+                return;
+            }
 
-        if (classWithAutoGenAttributeData?.Class is null)
-        {
-            // Stop the generator if no class with the attribute has been found
-            return;
+            var classWithAutoGenAttributeData = GetAllClasses(compilation.GlobalNamespace)
+                .Select(t => new
+                {
+                    Class = t,
+                    AttributeData = t
+                        .GetAttributes()
+                        .FirstOrDefault(ad => ad?.AttributeClass is not null && ad.AttributeClass.Equals(attributeAutoGenSymbol, SymbolEqualityComparer.Default))
+                })
+                .FirstOrDefault(t => t.AttributeData != null);
+
+            if (classWithAutoGenAttributeData?.Class is null)
+            {
+                // Stop the generator if no class with the attribute has been found
+                return;
+            }
+
+            if (classWithAutoGenAttributeData.AttributeData.ConstructorArguments.FirstOrDefault().Value is not string suffix || string.IsNullOrWhiteSpace(suffix))
+            {
+                // Stop the generator if the suffix is null or an empty string
+                context.ReportDiagnostic(
+                    Diagnostic.Create(
+                        new DiagnosticDescriptor(
+                            Constants.ARG001,
+                            Constants.Error,
+                            $"The {Constants.AutoRoutesAttribute} suffix parameter is required and may not be null or empty and the class name must be valid",
+                            Constants.ErrorCategoryCompilation,
+                            DiagnosticSeverity.Error,
+                            true),
+                        Location.None));
+
+                return;
+            }
+
+            var namespaceName = classWithAutoGenAttributeData.Class.ContainingNamespace.ToDisplayString();
+
+            // Get all non-abstract classes with the specified suffix and without the IgnoreRoute attribute
+            var routeClassDeclarationSyntaxList = classes
+                .Where(c => c.Identifier.Text.EndsWith(suffix) &&
+                       !c.AttributeLists
+                           .SelectMany(al => al.Attributes)
+                           .Any(a => a.Name.ToString().Equals(Constants.IgnoreRouteName)) &&
+                       !c.Modifiers.Any(m => m.IsKind(SyntaxKind.AbstractKeyword)))
+                .ToList();
+
+            var routeNameList = routeClassDeclarationSyntaxList.Select(pageClass => pageClass.Identifier.Text)
+                .Distinct()
+                .ToList();
+
+            var routesAndTypenamesDictionary = new Dictionary<string, string>();
+
+            foreach (var route in routeNameList)
+            {
+                var routeClass = classes.FirstOrDefault(c => c.Identifier.Text == route);
+                var semanticModel = compilation.GetSemanticModel(routeClass.SyntaxTree);
+                var classSymbol = ModelExtensions.GetDeclaredSymbol(semanticModel, routeClass);
+                var routeTypename = $"{classSymbol!.ContainingNamespace}.{route}";
+                routesAndTypenamesDictionary.Add(route, routeTypename);
+            }
+
+            AddExtraRoutes(context, compilation, classes, routeNameList, routesAndTypenamesDictionary);
+
+            var source = BuildSource(routeNameList, routesAndTypenamesDictionary, namespaceName);
+
+            context.AddSource(Constants.RoutesGenFileName, source);
         }
-
-        if (classWithAutoGenAttributeData.AttributeData.ConstructorArguments.FirstOrDefault().Value is not string suffix || string.IsNullOrWhiteSpace(suffix))
+        catch (Exception ex)
         {
-            // Stop the generator if the suffix is null or an empty string
             context.ReportDiagnostic(
                 Diagnostic.Create(
                     new DiagnosticDescriptor(
-                        Constants.ARG001,
-                        Constants.Error,
-                        $"The {Constants.AutoRoutesAttribute} suffix parameter is required and may not be null or empty and the class name must be valid",
-                        Constants.ErrorCategoryCompilation, DiagnosticSeverity.Error,
+                        Constants.RGE001,
+                        Constants.Warning,
+                        $"An unexpected error occurred during source generation: {ex.GetType().Name}: {ex.Message}\n{ex.StackTrace}\n. The generator output may be invalid.",
+                        Constants.ErrorCategoryCompilation,
+                        DiagnosticSeverity.Warning,
                         true),
-                    null));
-
-            return;
+                    Location.None));
         }
-
-        var namespaceName = classWithAutoGenAttributeData.Class.ContainingNamespace.ToDisplayString();
-
-        // Get all non-abstract classes with the specified suffix and without the IgnoreRoute attribute
-        var routeClassDeclarationSyntaxList = classes
-            .Where(c => c.Identifier.Text.EndsWith(suffix) &&
-                   !c.AttributeLists
-                       .SelectMany(al => al.Attributes)
-                       .Any(a => a.Name.ToString().Equals(Constants.IgnoreRouteName)) &&
-                   !c.Modifiers.Any(m => m.IsKind(SyntaxKind.AbstractKeyword)))
-            .ToList();
-
-        var routeNameList = routeClassDeclarationSyntaxList.Select(pageClass => pageClass.Identifier.Text)
-            .Distinct()
-            .ToList();
-
-        var routesAndTypenamesDictionary = new Dictionary<string, string>();
-
-        foreach (var route in routeNameList)
-        {
-            var routeClass = classes.FirstOrDefault(c => c.Identifier.Text == route);
-            var semanticModel = compilation.GetSemanticModel(routeClass.SyntaxTree);
-            var classSymbol = ModelExtensions.GetDeclaredSymbol(semanticModel, routeClass);
-            var routeTypename = $"{classSymbol!.ContainingNamespace}.{route}";
-            routesAndTypenamesDictionary.Add(route, routeTypename);
-        }
-
-        AddExtraRoutes(context, compilation, classes, routeNameList, routesAndTypenamesDictionary);
-
-        var source = BuildSource(routeNameList, routesAndTypenamesDictionary, namespaceName);
-
-        context.AddSource(Constants.RoutesGenFileName, source);
     }
 
     private void AddExtraRoutes(SourceProductionContext context, Compilation compilation, ImmutableArray<ClassDeclarationSyntax> classes, ICollection<string> routeNameList, Dictionary<string, string> routesAndTypenamesDictionary)
@@ -158,7 +176,7 @@ public class RouteGenerator : IIncrementalGenerator
                         Constants.ErrorCategoryCompilation,
                         DiagnosticSeverity.Warning,
                         true),
-                    null));
+                    Location.None));
 
                 continue;
             }
@@ -173,7 +191,7 @@ public class RouteGenerator : IIncrementalGenerator
                         Constants.ErrorCategoryCompilation,
                         DiagnosticSeverity.Warning,
                         true),
-                    null));
+                    Location.None));
 
                 continue;
             }
@@ -204,7 +222,7 @@ public class RouteGenerator : IIncrementalGenerator
                         Constants.ErrorCategoryCompilation,
                         DiagnosticSeverity.Warning,
                         true),
-                    null));
+                    Location.None));
 
                 continue;
             }
